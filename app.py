@@ -22,13 +22,17 @@ def index():
             os.remove(output_filename)
         
         # Настройки скачивания с использованием куки для обхода блокировки
+        # Улучшенные настройки для выбора доступного формата
         ydl_opts = {
-            'format': 'best',
+            'format': 'bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best',
             'outtmpl': output_filename,
             'quiet': True,
-            'cookiefile': 'cookies.txt', # Имя файла с твоими куками
             'nocheckcertificate': True,
+            'user_agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36'
         }
+
+        if os.path.exists(cookie_path):
+            ydl_opts['cookiefile'] = cookie_path
         
         try:
             with yt_dlp.YoutubeDL(ydl_opts) as ydl:
