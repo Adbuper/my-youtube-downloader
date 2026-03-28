@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>FPS Booster</title>
+    <style>
+        html, body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            font-family: Arial, sans-serif;
+            color: #eaeaea;
+            background: #000;
+        }
+
+        canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 0;
+        }
+
+        body {
+            height: 100vh;
+            background: linear-gradient(135deg, #000000 60%, #0a0a0a 100%);
+        }
+
+        .container {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 100vh;
+            padding: 60px;
+            box-sizing: border-box;
+        }
+
+        .left {
+            max-width: 550px;
+            backdrop-filter: blur(8px);
+            background: rgba(0,0,0,0.5);
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: 0 0 25px rgba(255,255,255,0.05);
+        }
+
+        .left h1 {
+            font-size: 48px;
+            color: #ffffff;
+            margin-bottom: 20px;
+        }
+
+        .left p {
+            font-size: 18px;
+            line-height: 1.6;
+            color: #bfbfbf;
+        }
+
+        .right {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .btn {
+            position: relative;
+            text-decoration: none;
+            padding: 14px 28px;
+            color: #ffffff;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.2);
+            text-align: center;
+            width: 260px;
+            transition: all 0.25s ease;
+            backdrop-filter: blur(6px);
+            clip-path: polygon(10px 0%, 100% 0%, 100% 100%, 0% 100%, 0% 10px);
+        }
+
+        .btn::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 40%;
+            background: linear-gradient(to bottom, rgba(255,255,255,0.15), transparent);
+            pointer-events: none;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            border-color: #ffffff;
+            box-shadow: 0 0 12px rgba(255,255,255,0.2);
+        }
+
+        .info-btn {
+            border-color: rgba(200,200,200,0.4);
+        }
+
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.75);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 2;
+        }
+
+        .modal-content {
+            background: rgba(15,15,15,0.95);
+            padding: 30px;
+            border-radius: 16px;
+            max-width: 500px;
+            text-align: center;
+            box-shadow: 0 0 25px rgba(255,255,255,0.1);
+        }
+
+        .close {
+            margin-top: 20px;
+            display: inline-block;
+            cursor: pointer;
+            color: #ffffff;
+        }
+
+        /* footer */
+        .footer {
+            position: fixed;
+            bottom: 10px;
+            right: 20px;
+            font-size: 12px;
+            color: rgba(200,200,200,0.6);
+            overflow: hidden;
+            white-space: nowrap;
+        }
+
+        .footer span {
+            display: inline-block;
+            position: relative;
+            left: 100%;
+            animation: slideText 8s linear infinite;
+        }
+
+        @keyframes slideText {
+            0% {
+                left: 100%;
+            }
+            50% {
+                left: 50%;
+                transform: translateX(-50%);
+            }
+            100% {
+                left: 0%;
+                transform: translateX(0);
+            }
+        }
+    </style>
+</head>
+<body>
+
+<canvas id="bg"></canvas>
+
+<div class="container">
+
+    <div class="left">
+        <h1>FPS BOOSTER</h1>
+        <p>
+            FPS Booster помогает оптимизировать систему и улучшить стабильность работы.
+            Интерфейс выполнен в минималистичном стиле с акцентом на производительность и удобство.
+        </p>
+    </div>
+
+    <div class="right">
+        <a href="fpsb.exe" class="btn">📥 Скачать fpsBoost</a>
+        <a href="MyApp" class="btn">📂 Скачать папку</a>
+        <a href="#" class="btn info-btn" onclick="openModal()">ℹ️ Информация</a>
+    </div>
+
+</div>
+
+<div class="modal" id="modal">
+    <div class="modal-content">
+        <h2>О программе</h2>
+        <p>
+            Это минималистичный интерфейс в тёмной теме с акцентом на читаемость,
+            строгие формы и плавные визуальные эффекты.
+        </p>
+        <div class="close" onclick="closeModal()">Закрыть</div>
+    </div>
+</div>
+
+<div class="footer">
+    <span>Сайт был сделан с помощью донер хана</span>
+</div>
+
+<script>
+function openModal() {
+    document.getElementById('modal').style.display = 'flex';
+}
+function closeModal() {
+    document.getElementById('modal').style.display = 'none';
+}
+
+const canvas = document.getElementById('bg');
+const ctx = canvas.getContext('2d');
+
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+
+let particles = [];
+const particleCount = 180;
+
+let stars = [];
+const starCount = 120;
+
+for (let i = 0; i < particleCount; i++) {
+    particles.push({
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height,
+        vx: (Math.random() - 0.5) * 0.8,
+        vy: (Math.random() - 0.5) * 0.8
+    });
+}
+
+for (let i = 0; i < starCount; i++) {
+    stars.push({
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height,
+        speed: Math.random() * 0.25 + 0.05
+    });
+}
+
+let mouse = { x: null, y: null };
+
+window.addEventListener("mousemove", (e) => {
+    mouse.x = e.x;
+    mouse.y = e.y;
+});
+
+function draw() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    ctx.fillStyle = "rgba(255,255,255,0.7)";
+    stars.forEach(s => {
+        ctx.beginPath();
+        ctx.arc(s.x, s.y, 1, 0, Math.PI * 2);
+        ctx.fill();
+
+        s.y += s.speed;
+        if (s.y > canvas.height) {
+            s.y = 0;
+            s.x = Math.random() * canvas.width;
+        }
+    });
+
+    for (let i = 0; i < particles.length; i++) {
+        for (let j = i + 1; j < particles.length; j++) {
+            let dx = particles[i].x - particles[j].x;
+            let dy = particles[i].y - particles[j].y;
+            let dist = Math.sqrt(dx * dx + dy * dy);
+
+            if (dist < 120) {
+                ctx.beginPath();
+                ctx.strokeStyle = "rgba(255,255,255,0.15)";
+                ctx.moveTo(particles[i].x, particles[i].y);
+                ctx.lineTo(particles[j].x, particles[j].y);
+                ctx.stroke();
+            }
+        }
+    }
+
+    particles.forEach(p => {
+        if (mouse.x && mouse.y) {
+            let dx = p.x - mouse.x;
+            let dy = p.y - mouse.y;
+            let dist = Math.sqrt(dx * dx + dy * dy);
+
+            if (dist < 150) {
+                ctx.beginPath();
+                ctx.strokeStyle = "rgba(255,255,255,0.25)";
+                ctx.moveTo(p.x, p.y);
+                ctx.lineTo(mouse.x, mouse.y);
+                ctx.stroke();
+            }
+        }
+    });
+
+    particles.forEach(p => {
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, 2, 0, Math.PI * 2);
+        ctx.fillStyle = "#ffffff";
+        ctx.fill();
+
+        p.x += p.vx;
+        p.y += p.vy;
+
+        if (p.x < 0 || p.x > canvas.width) p.vx *= -1;
+        if (p.y < 0 || p.y > canvas.height) p.vy *= -1;
+    });
+
+    requestAnimationFrame(draw);
+}
+
+draw();
+
+window.addEventListener("resize", () => {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+});
+</script>
+
+</body>
+</html>
